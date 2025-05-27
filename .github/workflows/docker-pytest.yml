@@ -9,6 +9,7 @@ on:
 jobs:
   playwright-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
     - name: Checkout repository
@@ -20,5 +21,38 @@ jobs:
     - name: Build Docker image
       run: docker build -t playwright-python .
 
-    - name: Run Playwright tests
-      run: docker run --rm -v ${{ github.workspace }}:/app playwright-python pytest
+    - name: Run smoke tests first
+      run: |
+        docker run --rm \
+          -v ${{ github.workspace }}:/app \
+          -e HEADLESS=true \
+          -e BROWSER=chromium \
+          playwright-python pytest -m smoke -v --tb=short
+
+    - name: Run all tests
+      run: |
+        docker run --rm \
+          -v ${{ github.workspace }}:/app \
+          -e HEADLESS=true \
+          -e BROWSER=chromium \
+          playwright-python pytest -v --tb=short --maxfail=3
+
+    - name: Run smoke tests only on failure
+      if: failure()
+      run: |
+        echo "Full test suite failed, running only smoke tests..."
+        docker run --rm \
+          -v ${{ github.workspace }}:/app \
+          -e HEADLESS=true \
+          -e BROWSER=chromium \
+          playwright-python pytest -m smoke -v --tb=short
+
+    - name: Upload test artifacts on failure
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-artifacts
+        path: |
+          test_failure.png
+          pytest.log
+        retention-days: 7

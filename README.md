@@ -31,7 +31,9 @@ playwright-python-docker/
 ├── README.md               # 项目说明文档
 ├── DEVELOPMENT.md          # 详细开发文档
 ├── tests/                  # 测试文件目录
+│   ├── conftest.py         # pytest 配置和 fixtures
 │   └── test_sample.py      # 示例测试文件
+├── pytest.ini             # pytest 配置文件
 └── .github/                # GitHub Actions 配置
     └── workflows/
         └── docker-pytest.yml  # CI/CD 工作流
@@ -101,19 +103,39 @@ playwright-python-docker/
 
 ## 测试示例
 
-项目包含一个示例测试 `tests/test_sample.py`，演示如何使用 Playwright 进行百度搜索页面的基本测试：
+项目包含多个示例测试 `tests/test_sample.py`，演示如何使用 Playwright 进行 Web 自动化测试：
 
+### 稳定的烟雾测试
 ```python
-import pytest
-from playwright.sync_api import sync_playwright
+@pytest.mark.smoke
+def test_example_com(page):
+    """测试 example.com 网站（稳定的测试目标）"""
+    page.goto("https://example.com", wait_until="networkidle")
+    title = page.title()
+    assert "Example Domain" in title
+```
 
-def test_baidu_search():
-    with sync_playwright() as p:
-        browser = p.chromium.launch()
-        page = browser.new_page()
-        page.goto("https://www.baidu.com")
-        assert "百度" in page.title()
-        browser.close()
+### 集成测试
+```python
+@pytest.mark.integration
+def test_baidu_search(page):
+    """测试百度搜索页面的基本功能"""
+    page.goto("https://www.baidu.com", wait_until="networkidle", timeout=30000)
+    assert "百度" in page.title()
+    search_box = page.locator("#kw")
+    assert search_box.is_visible()
+```
+
+### 运行特定类型的测试
+```bash
+# 只运行烟雾测试（快速验证）
+pytest -m smoke
+
+# 只运行集成测试
+pytest -m integration
+
+# 运行所有测试
+pytest
 ```
 
 ## 编写新测试
@@ -242,6 +264,20 @@ docker-compose run playwright-test pytest -m "smoke" -v
 # 使用不同浏览器运行测试
 docker-compose up test-firefox
 ```
+
+### Q: 遇到 TimeoutError 怎么办？
+A: 超时错误通常由网络问题或页面加载缓慢引起，可以尝试：
+```bash
+# 只运行稳定的烟雾测试
+pytest -m smoke
+
+# 增加超时时间
+docker-compose run playwright-test pytest --timeout=600
+
+# 使用本地环境测试网络连接
+ping example.com
+```
+建议优先运行 `example.com` 等稳定网站的测试，避免依赖可能不稳定的外部服务。
 
 ## 贡献指南
 
