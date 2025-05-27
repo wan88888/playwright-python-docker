@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # 开发环境服务
+  playwright-dev:
+    build: .
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      - HEADLESS=true
+      - BROWSER=chromium
+    command: bash
+    stdin_open: true
+    tty: true
+
+  # 测试运行服务
+  playwright-test:
+    build: .
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      - HEADLESS=true
+      - BROWSER=chromium
+    command: pytest -v
+
+  # Chromium 测试
+  test-chromium:
+    build: .
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      - HEADLESS=true
+      - BROWSER=chromium
+    command: pytest -v
+
+  # Firefox 测试
+  test-firefox:
+    build: .
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      - HEADLESS=true
+      - BROWSER=firefox
+    command: pytest -v 

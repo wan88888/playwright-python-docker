@@ -1,0 +1,45 @@
+
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# pytest
+.pytest_cache/
+
+# Environment files
+.env
+.venv/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Test and coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Python Egg
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+pip-wheel-metadata/
+share/python-wheels/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+.DS_Store
