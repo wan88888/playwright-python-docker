@@ -234,6 +234,19 @@ docker-compose run playwright-dev
 docker run -it --rm -v $(pwd):/app playwright-python bash
 ```
 
+### 本地验证 CI 配置
+
+项目提供了一个测试脚本来本地验证 GitHub Actions 配置：
+
+```bash
+# 运行本地 CI 测试
+./test_ci.sh
+
+# 或手动执行步骤
+chmod +x test_ci.sh
+./test_ci.sh
+```
+
 ### 浏览器选项
 
 支持的浏览器：

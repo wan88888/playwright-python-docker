@@ -391,8 +391,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - run: pip install flake8 black
@@ -405,12 +405,12 @@ jobs:
       matrix:
         browser: [chromium, firefox]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build and test
         run: |
           docker build -t playwright-test .
           docker run --rm -e BROWSER=${{ matrix.browser }} \
-            -v ${{ github.workspace }}:/app playwright-test pytest
+            -v ${{ github.workspace }}:/app -w /app playwright-test pytest -m smoke
 ```
 
 ## 性能优化
