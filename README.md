@@ -24,8 +24,12 @@
 ```
 playwright-python-docker/
 ├── Dockerfile              # Docker 镜像构建文件
+├── docker-compose.yml      # Docker Compose 配置文件
 ├── requirements.txt         # Python 依赖包
 ├── .gitignore              # Git 忽略文件
+├── .dockerignore           # Docker 构建忽略文件
+├── README.md               # 项目说明文档
+├── DEVELOPMENT.md          # 详细开发文档
 ├── tests/                  # 测试文件目录
 │   └── test_sample.py      # 示例测试文件
 └── .github/                # GitHub Actions 配置
@@ -53,7 +57,32 @@ playwright-python-docker/
    docker run --rm -v $(pwd):/app playwright-python pytest
    ```
 
-### 方式二：本地环境
+### 方式二：使用 Docker Compose（推荐用于开发）
+
+1. **克隆项目**
+   ```bash
+   git clone <repository-url>
+   cd playwright-python-docker
+   ```
+
+2. **运行测试**
+   ```bash
+   # 运行所有测试
+   docker-compose up playwright-test
+
+   # 运行 Chromium 测试
+   docker-compose up test-chromium
+
+   # 运行 Firefox 测试
+   docker-compose up test-firefox
+   ```
+
+3. **进入开发环境**
+   ```bash
+   docker-compose run playwright-dev
+   ```
+
+### 方式三：本地环境
 
 1. **安装 Python 依赖**
    ```bash
@@ -142,16 +171,44 @@ Docker 镜像基于 `python:3.11-slim`，包含：
 
 ## 开发指南
 
+### 使用 Docker Compose 进行开发
+
+项目提供了 `docker-compose.yml` 文件来简化开发流程：
+
+```bash
+# 进入交互式开发环境
+docker-compose run playwright-dev
+
+# 运行特定测试文件
+docker-compose run playwright-test pytest tests/test_sample.py -v
+
+# 在后台运行测试
+docker-compose up -d playwright-test
+
+# 查看测试日志
+docker-compose logs playwright-test
+
+# 停止所有服务
+docker-compose down
+```
+
 ### 添加新依赖
 
 1. 在 `requirements.txt` 中添加依赖包
-2. 重新构建 Docker 镜像
+2. 重新构建 Docker 镜像：
+   ```bash
+   docker-compose build
+   ```
 
 ### 调试测试
 
-使用交互式模式运行容器进行调试：
+使用 Docker Compose 进行调试：
 
 ```bash
+# 进入交互式开发环境
+docker-compose run playwright-dev
+
+# 或使用传统 Docker 命令
 docker run -it --rm -v $(pwd):/app playwright-python bash
 ```
 
@@ -172,6 +229,19 @@ A: 设置 `headless=False` 并使用本地环境运行，或者添加截图功�
 
 ### Q: Docker 容器中无法显示浏览器界面？
 A: Docker 环境默认为 headless 模式，这是正常的。如需查看界面，请使用本地环境。
+
+### Q: 如何使用 Docker Compose 运行特定的测试？
+A: 可以使用以下命令：
+```bash
+# 运行特定测试文件
+docker-compose run playwright-test pytest tests/test_sample.py -v
+
+# 运行带标记的测试
+docker-compose run playwright-test pytest -m "smoke" -v
+
+# 使用不同浏览器运行测试
+docker-compose up test-firefox
+```
 
 ## 贡献指南
 

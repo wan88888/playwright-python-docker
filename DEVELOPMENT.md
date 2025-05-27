@@ -301,18 +301,69 @@ docker run --rm -v $(pwd):/app playwright-python-dev pytest tests/test_specific.
 
 #### Docker Compose 配置
 
-创建 `docker-compose.yml` 用于开发：
+项目已包含 `docker-compose.yml` 文件，提供多个服务用于不同的开发场景：
 
 ```yaml
 version: '3.8'
 services:
-  playwright-tests:
+  # 开发环境服务
+  playwright-dev:
     build: .
     volumes:
       - .:/app
+    working_dir: /app
     environment:
       - HEADLESS=true
+      - BROWSER=chromium
+    command: bash
+    stdin_open: true
+    tty: true
+
+  # 测试运行服务
+  playwright-test:
+    build: .
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      - HEADLESS=true
+      - BROWSER=chromium
     command: pytest -v
+
+  # 多浏览器测试服务
+  test-chromium:
+    # Chromium 测试配置
+  test-firefox:
+    # Firefox 测试配置
+```
+
+**常用 Docker Compose 命令：**
+
+```bash
+# 构建所有服务
+docker-compose build
+
+# 运行测试
+docker-compose up playwright-test
+
+# 进入开发环境
+docker-compose run playwright-dev
+
+# 运行特定浏览器测试
+docker-compose up test-chromium
+docker-compose up test-firefox
+
+# 后台运行服务
+docker-compose up -d playwright-test
+
+# 查看服务日志
+docker-compose logs playwright-test
+
+# 停止并删除容器
+docker-compose down
+
+# 重新构建并运行
+docker-compose up --build playwright-test
 ```
 
 ## CI/CD 流程
